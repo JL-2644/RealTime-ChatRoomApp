@@ -17,7 +17,7 @@ app.use(express.static(publicDirPath))
 io.on('connection', (socket) => {
     console.log('New websocket connection')
 
-    socket.emit('message', generateMessage('Welcomne'))
+    socket.emit('message', generateMessage('Welcome!'))
     // Send message to all users except this one
     socket.broadcast.emit('message', generateMessage('A new user has joined'))
     socket.on('sendMessage', (message, callback) => {
