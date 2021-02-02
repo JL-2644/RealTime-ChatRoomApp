@@ -9,11 +9,21 @@ const $messages = document.querySelector('#messages')
 
 //templates
 const messageTemplate = document.querySelector('#message-template').innerHTML
+const locationTemplate = document.querySelector('#location-template').innerHTML
 
+socket.on('locationMessage', (location) => {
+    console.log(location)
+    const html = Mustache.render(locationTemplate, {
+        location: location.url,
+        createdAt: moment(location.createdAt).format('h:mm a')
+    })
+    $messages.insertAdjacentHTML('beforeend', html)
+})
 socket.on('message', (msg) => {
     console.log(msg)
     const html = Mustache.render(messageTemplate, {
-        message: msg
+        message: msg.text,
+        createdAt: moment(msg.createdAt).format('h:mm a')
     })
     $messages.insertAdjacentHTML('beforeend', html)
 

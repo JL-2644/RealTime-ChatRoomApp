@@ -3,6 +3,7 @@ const path = require('path')
 const http = require('http')
 const socketIO = require('socket.io')
 const Filter = require('bad-words')
+const {generateMessage, generateLocationMessage} = require('./utils/messages')
 
 const app = express()
 const server = http.createServer(app)
@@ -16,9 +17,9 @@ app.use(express.static(publicDirPath))
 io.on('connection', (socket) => {
     console.log('New websocket connection')
 
-    socket.emit('message', 'Welcome')
+    socket.emit('message', generateMessage('Welcomne'))
     // Send message to all users except this one
-    socket.broadcast.emit('message', 'A new user has joined')
+    socket.broadcast.emit('message', generateMessage('A new user has joined'))
     socket.on('sendMessage', (message, callback) => {
 
         const filter = new Filter()
@@ -28,18 +29,20 @@ io.on('connection', (socket) => {
         }
 
         // emits to all connections, use socket for particular connection
-        io.emit('message', message)
+        io.emit('message', generateMessage(message))
         // Acknolegment
         callback()
     })
 
     socket.on('sendLocation', (obj, callback) => {
-        io.emit('message', `https://google.com/maps?q=${obj.latitude},${obj.longitude}`)
+        io.emit('locationMessage', 
+                generateLocationMessage(`https://google.com/maps?q=${obj.latitude},${obj.longitude}`))
+        
         callback()
     })
 
     socket.on('disconnect', () => {
-        io.emit('message', 'A user has left')
+        io.emit('message', generateMessage('A user has left'))
     })
 })
 
