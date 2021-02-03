@@ -17,9 +17,14 @@ app.use(express.static(publicDirPath))
 io.on('connection', (socket) => {
     console.log('New websocket connection')
 
-    socket.emit('message', generateMessage('Welcome!'))
-    // Send message to all users except this one
-    socket.broadcast.emit('message', generateMessage('A new user has joined'))
+    socket.on('join', ({username, room}) => {
+        socket.join(room)
+
+        socket.emit('message', generateMessage(`Welcome ${username}!`))
+        // Send message to all users except this one
+        socket.broadcast.to(room).emit('message', generateMessage(`${username} has joined!`))
+    })
+
     socket.on('sendMessage', (message, callback) => {
 
         const filter = new Filter()
@@ -29,7 +34,7 @@ io.on('connection', (socket) => {
         }
 
         // emits to all connections, use socket for particular connection
-        io.emit('message', generateMessage(message))
+        io.to('5').emit('message', generateMessage(message))
         // Acknolegment
         callback()
     })
